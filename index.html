@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body{
+            background-color: #edff9a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .todo-container{    
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h1{
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .todo-item{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .strikethrough {
+          text-decoration: line-through;
+          color: gray;
+        }
+
+    </style>
+  </head>
+  <body>
+    <div class="todo-container">
+      <h1>My Todo List</h1>
+      <div class="input-group mb-3">
+        <input type="text" id="todo" class="form-control" placeholder="Add Todo">
+        <button class="btn btn-primary" type="button" id="add-todo">Add</button> 
+      </div>
+      <ul class="list-group" id="todo-list">
+      </ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+      const addButton = document.getElementById('add-todo');
+      const todoInput = document.getElementById('todo');
+      const todoList = document.getElementById('todo-list');
+
+      // Load todos from Local Storage
+      function loadTodos() {
+        const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+        savedTodos.forEach(todo => addTodoToList(todo.text, todo.completed));
+      }
+
+      // Save todos to Local Storage
+      function saveTodos() {
+        const todos = [];
+        document.querySelectorAll('.todo-item').forEach(item => {
+          const text = item.querySelector('span').textContent;
+          const completed = item.querySelector('input[type="checkbox"]').checked;
+          todos.push({ text, completed });
+        });
+        localStorage.setItem('todos', JSON.stringify(todos));
+      }
+
+      function addTodo(){
+        console.log(todoInput.value);
+        console.log("task berhasil ditambah");
+        const todoText = todoInput.value;
+
+        if(todoText !== ''){
+          const listItem = document.createElement('li');
+          listItem.className = 'list-group-item todo-item d-flex justify-content-between align-items-center';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'form-check-input';
+          const text = document.createElement('span');
+          text.textContent = todoText;
+
+          // Event listener for checkbox to toggle strikethrough
+          checkbox.addEventListener('change', function() {
+              text.classList.toggle('strikethrough', checkbox.checked);
+              saveTodos(); // Save to Local Storage when checkbox is toggled
+          });
+
+          const deleteButton = document.createElement('button');
+          deleteButton.className = 'btn btn-danger';
+          deleteButton.textContent = 'Delete';
+          deleteButton.addEventListener('click', function(){
+            listItem.remove();
+            saveTodos(); // Save to Local Storage when item is deleted
+          });
+          listItem.appendChild(checkbox);
+          listItem.appendChild(text);
+          listItem.appendChild(deleteButton);
+          todoList.appendChild(listItem);
+          todoInput.value = "";
+
+          saveTodos(); // Save to Local Storage after adding a new item
+        }
+      }
+
+      function addTodoToList(todoText, completed = false) {
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item todo-item d-flex justify-content-between align-items-center';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'form-check-input';
+        checkbox.checked = completed;
+
+        const text = document.createElement('span');
+        text.textContent = todoText;
+        if (completed) text.classList.add('strikethrough'); // Add strikethrough if completed
+
+        checkbox.addEventListener('change', function() {
+          text.classList.toggle('strikethrough', checkbox.checked);
+          saveTodos(); // Update Local Storage when checkbox is toggled
+        });
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'btn btn-danger';
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', function() {
+          listItem.remove();
+          saveTodos(); // Update Local Storage when item is deleted
+        });
+
+        listItem.appendChild(checkbox);
+        listItem.appendChild(text);
+        listItem.appendChild(deleteButton);
+        todoList.appendChild(listItem);
+      }
+
+      addButton.addEventListener('click', addTodo);
+
+      // Load todos when the page loads
+      window.onload = loadTodos;
+    </script>
+  </body>
+</html>
